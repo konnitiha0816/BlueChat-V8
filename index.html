@@ -2,20 +2,78 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Blue Chat V8</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">　
+  <title>Blue Chat</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: white;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* 昼：日の出 */
+    body.day {
+      background-image: url("https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1920&q=80");
+    }
+
+    /* 夜：星空 */
+    body.night {
+      background-image: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80");
+    }
+
+    #version {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    #title {
+      text-align: center;
+    }
+
+    #title h1 {
+      font-size: 96px;
+      margin: 0 0 40px;
+      color: #4da3ff;
+    }
+
+    #start-btn {
+      font-size: 32px;
+      padding: 16px 60px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-
   <div id="version">V8</div>
 
-  <div id="title-screen">
+  <div id="title">
     <h1>Blue Chat</h1>
     <button id="start-btn">スタート</button>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 17) {
+      document.body.classList.add("day");
+    } else {
+      document.body.classList.add("night");
+    }
+  </script>
 </body>
 </html>
-　　　
