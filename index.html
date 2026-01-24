@@ -13,7 +13,6 @@ html, body {
   font-family: "Segoe UI", sans-serif;
 }
 
-/* 背景 */
 body {
   background-size: cover;
   background-position: center;
@@ -32,7 +31,6 @@ body.night {
   background-image: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1920&q=80");
 }
 
-/* バージョン */
 .version {
   position: fixed;
   top: 10px;
@@ -45,7 +43,7 @@ body.night {
 .touch {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,7 +54,7 @@ body.night {
   font-size: 28px;
 }
 
-/* タイトル画面 */
+/* タイトル */
 .title-screen {
   position: absolute;
   inset: 0;
@@ -69,11 +67,9 @@ body.night {
 .title {
   font-size: 96px;
   font-weight: 700;
-  letter-spacing: 2px;
   margin-bottom: 40px;
 }
 
-/* スタートボタン */
 .start-btn {
   font-size: 32px;
   padding: 18px 70px;
@@ -84,11 +80,6 @@ body.night {
   color: white;
 }
 
-.start-btn:hover {
-  background: #0f6adf;
-}
-
-/* 非表示 */
 .hidden {
   display: none;
 }
@@ -99,55 +90,52 @@ body.night {
 
 <div class="version">V8</div>
 
-<!-- タッチ要求 -->
 <div class="touch" id="touchScreen">
   <div class="touch-text">画面をタッチしてください</div>
 </div>
 
-<!-- タイトル -->
 <div class="title-screen hidden" id="titleScreen">
   <div class="title">Blue Chat</div>
   <button class="start-btn" id="startBtn">スタート</button>
 </div>
 
-<!-- タイトル音楽 -->
 <audio id="titleMusic" loop>
-  <!-- あとで差し替えOK -->
   <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9b3d6b2a0a.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-/* 時間帯で背景変更（日本時間） */
+/* 🔵 日本時間をUTC+9で確実に計算 */
 function setBackground() {
   const now = new Date();
-  const jp = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
-  );
-  const h = jp.getHours();
+  const utcHour = now.getUTCHours();
+  const jpHour = (utcHour + 9) % 24;
 
-  if (h >= 5 && h < 17) {
+  document.body.classList.remove("day", "night");
+
+  if (jpHour >= 5 && jpHour < 17) {
     document.body.classList.add("day");
   } else {
     document.body.classList.add("night");
   }
+
+  console.log("日本時間:", jpHour);
 }
 
 setBackground();
 
-/* タッチ後に音楽開始 */
+/* タッチ後 */
 const touch = document.getElementById("touchScreen");
 const title = document.getElementById("titleScreen");
 const music = document.getElementById("titleMusic");
 
-touch.addEventListener("click", () => {
+touch.onclick = () => {
   music.play();
   touch.classList.add("hidden");
   title.classList.remove("hidden");
-});
+};
 
-/* スタート */
 document.getElementById("startBtn").onclick = () => {
-  alert("次はフェーズ2：ロボット防止（九九）");
+  alert("次はフェーズ2へ");
 };
 </script>
 
