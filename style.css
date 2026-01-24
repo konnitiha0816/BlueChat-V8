@@ -22,3 +22,44 @@ body.day {
 body.night {
   background-image: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3");
 }
+/* バージョン表示 */
+.version {
+  position: fixed;
+  top: 10px;
+  right: 15px;
+  color: white;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* タイトル画面 */
+.title-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: brightness(0.9);
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 72px;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+  margin-bottom: 40px;
+}
+
+#startBtn {
+  font-size: 20px;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 30px;
+  background: #1e90ff;
+  color: white;
+  cursor: pointer;
+}
+
+#startBtn:hover {
+  background: #187bcd;
+}
