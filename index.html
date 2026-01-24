@@ -20,7 +20,7 @@
       background-repeat: no-repeat;
     }
 
-    /* 昼（5:00〜17:00） */
+    /* 昼 */
     body.day {
       background-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");
     }
@@ -30,7 +30,6 @@
       background-image: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80");
     }
 
-    /* 画面中央配置 */
     .center {
       position: absolute;
       top: 50%;
@@ -40,17 +39,16 @@
       z-index: 2;
     }
 
-    /* 背景ぼかし用オーバーレイ */
+    /* ぼかし */
     #blurOverlay {
       position: fixed;
       inset: 0;
       backdrop-filter: blur(12px);
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0,0,0,0.45);
       z-index: 1;
       cursor: pointer;
     }
 
-    /* タップ案内 */
     #tapText {
       font-size: 30px;
       padding: 24px 40px;
@@ -58,33 +56,33 @@
       border-radius: 14px;
     }
 
-    /* タイトル画面 */
-    #titleScreen {
+    #titleScreen, #captchaScreen, #selectScreen {
       display: none;
     }
 
     #titleText {
       font-size: 96px;
       font-weight: 800;
-      letter-spacing: 3px;
       margin-bottom: 40px;
     }
 
-    #startBtn {
-      font-size: 34px;
-      padding: 22px 90px;
+    button {
+      font-size: 28px;
+      padding: 18px 60px;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #startBtn {
       background: #1e90ff;
       color: white;
-      cursor: pointer;
     }
 
     #startBtn:hover {
       background: #4da3ff;
     }
 
-    /* バージョン */
     #version {
       position: fixed;
       top: 10px;
@@ -93,53 +91,122 @@
       opacity: 0.8;
       z-index: 3;
     }
+
+    input {
+      font-size: 26px;
+      padding: 10px;
+      width: 140px;
+      text-align: center;
+      border-radius: 8px;
+      border: none;
+      margin-top: 15px;
+    }
+
+    .error {
+      color: #ff8080;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .choiceBtn {
+      width: 320px;
+      margin: 14px 0;
+    }
+
+    #callBtn {
+      background: #1e90ff;
+      color: white;
+    }
+
+    #msgBtn {
+      background: gray;
+      color: white;
+    }
   </style>
 </head>
 
 <body>
   <div id="version">V8</div>
 
-  <!-- ぼかし＋タップ判定 -->
+  <!-- ぼかし -->
   <div id="blurOverlay"></div>
 
-  <!-- タップ案内 -->
+  <!-- タップ画面 -->
   <div id="tapScreen" class="center">
     <div id="tapText">画面をタップしてください</div>
   </div>
 
-  <!-- タイトル画面 -->
+  <!-- タイトル -->
   <div id="titleScreen" class="center">
     <div id="titleText">Blue Chat</div>
     <button id="startBtn">スタート</button>
   </div>
 
-  <!-- タイトルBGM -->
+  <!-- 九九チェック -->
+  <div id="captchaScreen" class="center">
+    <div style="font-size:32px;">次の計算をしてください</div>
+    <div id="question" style="font-size:40px;margin:20px 0;"></div>
+    <input id="answer" type="number" />
+    <div>
+      <button onclick="checkAnswer()">確認</button>
+    </div>
+    <div id="error" class="error"></div>
+  </div>
+
+  <!-- 通話 / メッセージ選択 -->
+  <div id="selectScreen" class="center">
+    <button id="callBtn" class="choiceBtn">通話</button><br>
+    <button id="msgBtn" class="choiceBtn">メッセージ（メンテナンス中）</button>
+  </div>
+
+  <!-- BGM -->
   <audio id="titleBgm" loop>
     <source src="title.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    // 日本時間で昼夜判定
+    // 昼夜判定
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 17) {
-      document.body.classList.add("day");
-    } else {
-      document.body.classList.add("night");
-    }
+    document.body.classList.add(hour >= 5 && hour < 17 ? "day" : "night");
 
     const overlay = document.getElementById("blurOverlay");
     const tapScreen = document.getElementById("tapScreen");
     const titleScreen = document.getElementById("titleScreen");
+    const captchaScreen = document.getElementById("captchaScreen");
+    const selectScreen = document.getElementById("selectScreen");
     const bgm = document.getElementById("titleBgm");
 
-    // 画面のどこを押してもOK
-    overlay.addEventListener("click", startApp);
+    let a, b;
 
-    function startApp() {
+    overlay.onclick = () => {
       bgm.play();
       overlay.style.display = "none";
       tapScreen.style.display = "none";
       titleScreen.style.display = "block";
+    };
+
+    document.getElementById("startBtn").onclick = () => {
+      titleScreen.style.display = "none";
+      showCaptcha();
+    };
+
+    function showCaptcha() {
+      a = Math.floor(Math.random() * 8) + 2;
+      b = Math.floor(Math.random() * 8) + 2;
+      document.getElementById("question").innerText = `${a} × ${b}`;
+      document.getElementById("answer").value = "";
+      document.getElementById("error").innerText = "";
+      captchaScreen.style.display = "block";
+    }
+
+    function checkAnswer() {
+      const val = Number(document.getElementById("answer").value);
+      if (val === a * b) {
+        captchaScreen.style.display = "none";
+        selectScreen.style.display = "block";
+      } else {
+        document.getElementById("error").innerText = "不正解です。もう一度。";
+      }
     }
   </script>
 </body>
