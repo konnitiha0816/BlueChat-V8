@@ -1,213 +1,131 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>Blue Chat</title>
+<meta charset="UTF-8">
+<title>Blue Chat</title>
 
-  <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      color: white;
-      overflow: hidden;
-    }
+<style>
+html,body{
+  width:100%;height:100%;margin:0;
+  font-family:system-ui;
+  color:white;overflow:hidden;
+}
+body{background-size:cover;background-position:center;}
+body.day{background-image:url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");}
+body.night{background-image:url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80");}
 
-    body {
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
+.center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+button{font-size:26px;padding:14px 50px;border-radius:10px;border:none;cursor:pointer}
+input{font-size:24px;padding:10px;width:280px;text-align:center;border-radius:8px;border:none}
 
-    /* 昼 */
-    body.day {
-      background-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");
-    }
+#blur{position:fixed;inset:0;backdrop-filter:blur(12px);background:rgba(0,0,0,.5)}
+#version{position:fixed;top:10px;right:14px;font-size:12px;opacity:.7}
 
-    /* 夜（星空） */
-    body.night {
-      background-image: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80");
-    }
+.hidden{display:none}
+.choice{width:340px;margin:12px 0}
 
-    .center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      z-index: 2;
-    }
+#call{background:#1e90ff}
+#msg{background:gray}
 
-    /* ぼかし */
-    #blurOverlay {
-      position: fixed;
-      inset: 0;
-      backdrop-filter: blur(12px);
-      background: rgba(0,0,0,0.45);
-      z-index: 1;
-      cursor: pointer;
-    }
-
-    #tapText {
-      font-size: 30px;
-      padding: 24px 40px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 14px;
-    }
-
-    #titleScreen, #captchaScreen, #selectScreen {
-      display: none;
-    }
-
-    #titleText {
-      font-size: 96px;
-      font-weight: 800;
-      margin-bottom: 40px;
-    }
-
-    button {
-      font-size: 28px;
-      padding: 18px 60px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    #startBtn {
-      background: #1e90ff;
-      color: white;
-    }
-
-    #startBtn:hover {
-      background: #4da3ff;
-    }
-
-    #version {
-      position: fixed;
-      top: 10px;
-      right: 14px;
-      font-size: 12px;
-      opacity: 0.8;
-      z-index: 3;
-    }
-
-    input {
-      font-size: 26px;
-      padding: 10px;
-      width: 140px;
-      text-align: center;
-      border-radius: 8px;
-      border: none;
-      margin-top: 15px;
-    }
-
-    .error {
-      color: #ff8080;
-      margin-top: 10px;
-      font-size: 18px;
-    }
-
-    .choiceBtn {
-      width: 320px;
-      margin: 14px 0;
-    }
-
-    #callBtn {
-      background: #1e90ff;
-      color: white;
-    }
-
-    #msgBtn {
-      background: gray;
-      color: white;
-    }
-  </style>
+#green{background:#00c853;font-size:32px;padding:20px 80px}
+</style>
 </head>
 
 <body>
-  <div id="version">V8</div>
+<div id="version">V8</div>
+<div id="blur"></div>
 
-  <!-- ぼかし -->
-  <div id="blurOverlay"></div>
+<div id="tap" class="center">画面をタップしてください</div>
 
-  <!-- タップ画面 -->
-  <div id="tapScreen" class="center">
-    <div id="tapText">画面をタップしてください</div>
+<div id="title" class="center hidden">
+  <div style="font-size:96px;font-weight:800">Blue Chat</div>
+  <button id="start">スタート</button>
+</div>
+
+<div id="captcha" class="center hidden">
+  <div id="q" style="font-size:40px"></div>
+  <input id="a" type="number">
+  <div><button onclick="check()">確認</button></div>
+  <div id="err" style="color:#ff8080"></div>
+</div>
+
+<div id="select" class="center hidden">
+  <button id="call" class="choice">通話</button><br>
+  <button id="msg" class="choice">メッセージ（メンテ中）</button>
+</div>
+
+<div id="callMenu" class="center hidden">
+  <input id="callId" minlength="6" maxlength="20" placeholder="通話ID（6文字以上）"><br><br>
+  <button onclick="join()">この通話に参加</button><br><br>
+  <button onclick="create()">新しく通話を作る</button>
+</div>
+
+<div id="prepare" class="hidden" style="display:flex;height:100%">
+  <div style="flex:2;background:#000;display:flex;align-items:center;justify-content:center">
+    カメラ映像（準備中）
   </div>
-
-  <!-- タイトル -->
-  <div id="titleScreen" class="center">
-    <div id="titleText">Blue Chat</div>
-    <button id="startBtn">スタート</button>
+  <div style="flex:1;padding:20px;background:#111">
+    <h2>通話設定</h2>
+    カメラ：ON<br><br>
+    マイク：ON<br><br>
+    画面共有：OFF<br><br>
+    背景ぼかし：OFF<br><br><br>
+    <button id="green">通話を開始</button>
   </div>
+</div>
 
-  <!-- 九九チェック -->
-  <div id="captchaScreen" class="center">
-    <div style="font-size:32px;">次の計算をしてください</div>
-    <div id="question" style="font-size:40px;margin:20px 0;"></div>
-    <input id="answer" type="number" />
-    <div>
-      <button onclick="checkAnswer()">確認</button>
-    </div>
-    <div id="error" class="error"></div>
-  </div>
+<audio id="bgm" loop><source src="title.mp3"></audio>
 
-  <!-- 通話 / メッセージ選択 -->
-  <div id="selectScreen" class="center">
-    <button id="callBtn" class="choiceBtn">通話</button><br>
-    <button id="msgBtn" class="choiceBtn">メッセージ（メンテナンス中）</button>
-  </div>
+<script>
+const h=new Date().getHours();
+document.body.classList.add(h>=5&&h<17?"day":"night");
 
-  <!-- BGM -->
-  <audio id="titleBgm" loop>
-    <source src="title.mp3" type="audio/mpeg">
-  </audio>
+let x,y;
+const show=id=>{
+  document.querySelectorAll("body>div").forEach(d=>{
+    d.id===id?d.classList.remove("hidden"):d.classList.add("hidden");
+  });
+};
 
-  <script>
-    // 昼夜判定
-    const hour = new Date().getHours();
-    document.body.classList.add(hour >= 5 && hour < 17 ? "day" : "night");
+blur.onclick=()=>{
+  bgm.play();
+  blur.style.display="none";
+  show("title");
+};
 
-    const overlay = document.getElementById("blurOverlay");
-    const tapScreen = document.getElementById("tapScreen");
-    const titleScreen = document.getElementById("titleScreen");
-    const captchaScreen = document.getElementById("captchaScreen");
-    const selectScreen = document.getElementById("selectScreen");
-    const bgm = document.getElementById("titleBgm");
+start.onclick=()=>{
+  x=Math.floor(Math.random()*8)+2;
+  y=Math.floor(Math.random()*8)+2;
+  q.innerText=`${x} × ${y}`;
+  show("captcha");
+};
 
-    let a, b;
+function check(){
+  if(+a.value===x*y) show("select");
+  else err.innerText="不正解です";
+}
 
-    overlay.onclick = () => {
-      bgm.play();
-      overlay.style.display = "none";
-      tapScreen.style.display = "none";
-      titleScreen.style.display = "block";
-    };
+call.onclick=()=>show("callMenu");
+msg.onclick=()=>alert("メンテナンス中です");
 
-    document.getElementById("startBtn").onclick = () => {
-      titleScreen.style.display = "none";
-      showCaptcha();
-    };
+function validateId(){
+  const len=callId.value.length;
+  if(len<6||len>20){
+    alert("通話IDは6〜20文字にしてください");
+    return false;
+  }
+  return true;
+}
 
-    function showCaptcha() {
-      a = Math.floor(Math.random() * 8) + 2;
-      b = Math.floor(Math.random() * 8) + 2;
-      document.getElementById("question").innerText = `${a} × ${b}`;
-      document.getElementById("answer").value = "";
-      document.getElementById("error").innerText = "";
-      captchaScreen.style.display = "block";
-    }
+function create(){
+  if(!validateId()) return;
+  show("prepare");
+}
 
-    function checkAnswer() {
-      const val = Number(document.getElementById("answer").value);
-      if (val === a * b) {
-        captchaScreen.style.display = "none";
-        selectScreen.style.display = "block";
-      } else {
-        document.getElementById("error").innerText = "不正解です。もう一度。";
-      }
-    }
-  </script>
+function join(){
+  if(!validateId()) return;
+  show("prepare");
+}
+</script>
 </body>
 </html>
