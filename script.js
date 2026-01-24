@@ -1,7 +1,5 @@
 function setBackgroundByTime() {
   const now = new Date();
-
-  // 日本時間に変換
   const japanTime = new Date(
     now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
   );
@@ -16,4 +14,14 @@ function setBackgroundByTime() {
   }
 }
 
-window.onload = setBackgroundByTime;
+window.onload = () => {
+  setBackgroundByTime();
+
+  const startBtn = document.getElementById("startBtn");
+  const music = document.getElementById("titleMusic");
+
+  startBtn.addEventListener("click", () => {
+    music.play();
+    alert("次は本人確認画面に進みます（フェーズ3）");
+  });
+};
