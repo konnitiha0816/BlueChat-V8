@@ -1,143 +1,127 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Blue Chat</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Blue Chat</title>
 
-<style>
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-}
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: white;
+    }
 
-body {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: white;
-  overflow: hidden;
-}
+    body {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
 
-/* 日中 */
-body.day {
-  background-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");
-}
+    /* 昼 */
+    body.day {
+      background-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80");
+    }
 
-/* 夜 */
-body.night {
-  background-image: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1920&q=80");
-}
+    /* 夜（星空） */
+    body.night {
+      background-image: url("https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&w=1920&q=80");
+    }
 
-.version {
-  position: fixed;
-  top: 10px;
-  right: 15px;
-  font-size: 12px;
-  opacity: 0.8;
-}
+    /* 共通中央配置 */
+    .center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
 
-/* タッチ画面 */
-.touch {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
+    /* 最初のタップ画面 */
+    #tapScreen {
+      font-size: 28px;
+      background: rgba(0,0,0,0.6);
+      padding: 30px 50px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
 
-.touch-text {
-  font-size: 28px;
-}
+    /* タイトル画面 */
+    #titleScreen {
+      display: none;
+    }
 
-/* タイトル */
-.title-screen {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+    #titleText {
+      font-size: 96px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+    }
 
-.title {
-  font-size: 96px;
-  font-weight: 700;
-  margin-bottom: 40px;
-}
+    #startBtn {
+      font-size: 32px;
+      padding: 20px 80px;
+      border: none;
+      border-radius: 12px;
+      background: #1e90ff;
+      color: white;
+      cursor: pointer;
+    }
 
-.start-btn {
-  font-size: 32px;
-  padding: 18px 70px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  background: #1e88ff;
-  color: white;
-}
+    #startBtn:hover {
+      background: #4da3ff;
+    }
 
-.hidden {
-  display: none;
-}
-</style>
+    /* バージョン表示 */
+    #version {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+  </style>
 </head>
 
 <body>
+  <div id="version">V8</div>
 
-<div class="version">V8</div>
+  <!-- 最初のタップ -->
+  <div id="tapScreen" class="center">
+    画面をタップしてください
+  </div>
 
-<div class="touch" id="touchScreen">
-  <div class="touch-text">画面をタッチしてください</div>
-</div>
+  <!-- タイトル -->
+  <div id="titleScreen" class="center">
+    <div id="titleText">Blue Chat</div>
+    <button id="startBtn">スタート</button>
+  </div>
 
-<div class="title-screen hidden" id="titleScreen">
-  <div class="title">Blue Chat</div>
-  <button class="start-btn" id="startBtn">スタート</button>
-</div>
+  <!-- タイトルBGM -->
+  <audio id="titleBgm" loop>
+    <source src="title.mp3" type="audio/mpeg">
+  </audio>
 
-<audio id="titleMusic" loop>
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9b3d6b2a0a.mp3" type="audio/mpeg">
-</audio>
+  <script>
+    // 日本時間で昼夜判定
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 17) {
+      document.body.classList.add("day");
+    } else {
+      document.body.classList.add("night");
+    }
 
-<script>
-/* 🔵 日本時間をUTC+9で確実に計算 */
-function setBackground() {
-  const now = new Date();
-  const utcHour = now.getUTCHours();
-  const jpHour = (utcHour + 9) % 24;
+    const tapScreen = document.getElementById("tapScreen");
+    const titleScreen = document.getElementById("titleScreen");
+    const bgm = document.getElementById("titleBgm");
 
-  document.body.classList.remove("day", "night");
-
-  if (jpHour >= 5 && jpHour < 17) {
-    document.body.classList.add("day");
-  } else {
-    document.body.classList.add("night");
-  }
-
-  console.log("日本時間:", jpHour);
-}
-
-setBackground();
-
-/* タッチ後 */
-const touch = document.getElementById("touchScreen");
-const title = document.getElementById("titleScreen");
-const music = document.getElementById("titleMusic");
-
-touch.onclick = () => {
-  music.play();
-  touch.classList.add("hidden");
-  title.classList.remove("hidden");
-};
-
-document.getElementById("startBtn").onclick = () => {
-  alert("次はフェーズ2へ");
-};
-</script>
-
+    tapScreen.addEventListener("click", () => {
+      bgm.play();
+      tapScreen.style.display = "none";
+      titleScreen.style.display = "block";
+    });
+  </script>
 </body>
 </html>
